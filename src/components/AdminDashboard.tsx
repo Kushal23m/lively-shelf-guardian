@@ -9,6 +9,8 @@ interface User {
   id: string;
   username: string;
   role: 'admin' | 'customer' | 'public' | null;
+  email?: string;
+  phone?: string;
 }
 
 interface AdminDashboardProps {
