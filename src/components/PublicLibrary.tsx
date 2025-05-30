@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Book, LogOut, Search, Filter } from "lucide-react";
 import BookList from "./BookList";
@@ -7,7 +6,9 @@ import BookRequestForm from "./BookRequestForm";
 interface User {
   id: string;
   username: string;
-  role: 'admin' | 'public' | null;
+  role: 'admin' | 'customer' | 'public' | null;
+  email?: string;
+  phone?: string;
 }
 
 interface PublicLibraryProps {

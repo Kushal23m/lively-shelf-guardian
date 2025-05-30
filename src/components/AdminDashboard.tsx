@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Book, Plus, User, LogOut, Eye } from "lucide-react";
 import AddBookForm from "./AddBookForm";
@@ -48,7 +47,7 @@ const AdminDashboard = ({ user, onLogout }: AdminDashboardProps) => {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px:6 lg:px-8 py-8">
         {/* Navigation Tabs */}
         <div className="mb-8">
           <nav className="flex space-x-8">
