@@ -1,42 +1,90 @@
 
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import LoginForm from "../components/LoginForm";
+import AdminLoginForm from "../components/AdminLoginForm";
+import CustomerRegistrationForm from "../components/CustomerRegistrationForm";
 import PublicLibrary from "../components/PublicLibrary";
 import AdminDashboard from "../components/AdminDashboard";
 
-type UserRole = 'admin' | 'public' | null;
+type UserRole = 'admin' | 'customer' | 'public' | null;
 
 interface User {
   id: string;
   username: string;
   role: UserRole;
+  email?: string;
+  phone?: string;
 }
+
+type ViewState = 'home' | 'admin-login' | 'customer-login' | 'customer-register';
+
+// Mock customer database
+const mockCustomers = [
+  { id: "1", username: "john_doe", password: "password123", email: "john@email.com", phone: "+1234567890", name: "John Doe" },
+  { id: "2", username: "jane_smith", password: "password456", email: "jane@email.com", phone: "+0987654321", name: "Jane Smith" }
+];
 
 const Index = () => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [showLogin, setShowLogin] = useState(false);
+  const [currentView, setCurrentView] = useState<ViewState>('home');
 
-  const handleLogin = (username: string, password: string) => {
-    // Simple authentication - in real app, this would connect to database
-    if (username === "admin" && password === "admin123") {
-      setCurrentUser({ id: "1", username: "Administrator", role: "admin" });
-      setShowLogin(false);
-    } else if (username === "user" && password === "user123") {
-      setCurrentUser({ id: "2", username: username, role: "public" });
-      setShowLogin(false);
+  const handleAdminLogin = (username: string, password: string) => {
+    if (username === "kushal" && password === "kush@23") {
+      setCurrentUser({ id: "admin", username: "Kushal", role: "admin" });
+      setCurrentView('home');
     } else {
-      alert("Invalid credentials. Try: admin/admin123 or user/user123");
+      alert("Invalid admin credentials. Use: kushal / kush@23");
     }
+  };
+
+  const handleCustomerLogin = (username: string, password: string) => {
+    const customer = mockCustomers.find(c => c.username === username && c.password === password);
+    if (customer) {
+      setCurrentUser({ 
+        id: customer.id, 
+        username: customer.name, 
+        role: "customer",
+        email: customer.email,
+        phone: customer.phone
+      });
+      setCurrentView('home');
+    } else {
+      alert("Invalid customer credentials. Try: john_doe/password123 or jane_smith/password456");
+    }
+  };
+
+  const handleCustomerRegistration = (customerData: any) => {
+    // In a real app, this would save to database
+    const newCustomer = {
+      ...customerData,
+      id: Date.now().toString()
+    };
+    mockCustomers.push(newCustomer);
+    setCurrentUser({
+      id: newCustomer.id,
+      username: newCustomer.name,
+      role: "customer",
+      email: newCustomer.email,
+      phone: newCustomer.phone
+    });
+    setCurrentView('home');
   };
 
   const handleLogout = () => {
     setCurrentUser(null);
-    setShowLogin(false);
+    setCurrentView('home');
   };
 
-  if (showLogin) {
-    return <LoginForm onLogin={handleLogin} onCancel={() => setShowLogin(false)} />;
+  if (currentView === 'admin-login') {
+    return <AdminLoginForm onLogin={handleAdminLogin} onCancel={() => setCurrentView('home')} />;
+  }
+
+  if (currentView === 'customer-login') {
+    return <LoginForm onLogin={handleCustomerLogin} onCancel={() => setCurrentView('home')} onRegister={() => setCurrentView('customer-register')} />;
+  }
+
+  if (currentView === 'customer-register') {
+    return <CustomerRegistrationForm onRegister={handleCustomerRegistration} onCancel={() => setCurrentView('home')} onLogin={() => setCurrentView('customer-login')} />;
   }
 
   if (!currentUser) {
@@ -54,12 +102,19 @@ const Index = () => {
               </p>
             </div>
             
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
               <button
-                onClick={() => setShowLogin(true)}
+                onClick={() => setCurrentView('admin-login')}
+                className="px-8 py-4 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-lg font-semibold text-lg hover:from-red-700 hover:to-red-800 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
+              >
+                Admin Login
+              </button>
+              
+              <button
+                onClick={() => setCurrentView('customer-login')}
                 className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold text-lg hover:from-blue-700 hover:to-purple-700 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
               >
-                Enter Library
+                Customer Login
               </button>
               
               <button
@@ -67,6 +122,15 @@ const Index = () => {
                 className="px-8 py-4 bg-white/10 backdrop-blur-sm text-white rounded-lg font-semibold text-lg hover:bg-white/20 transform hover:scale-105 transition-all duration-300 border border-white/20"
               >
                 Browse as Guest
+              </button>
+            </div>
+
+            <div className="mb-8">
+              <button
+                onClick={() => setCurrentView('customer-register')}
+                className="px-6 py-3 bg-white/20 backdrop-blur-sm text-white rounded-lg font-medium hover:bg-white/30 transition-all duration-300 border border-white/30"
+              >
+                New Customer? Register Here
               </button>
             </div>
 

@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { User, Mail, Phone, Calendar, Book } from "lucide-react";
 
 interface Customer {
@@ -12,42 +12,72 @@ interface Customer {
   status: 'active' | 'inactive';
 }
 
+// Global customers state
+let globalCustomers: Customer[] = [
+  {
+    id: "1",
+    name: "John Doe",
+    email: "john@email.com",
+    phone: "+1234567890",
+    joinDate: "2024-01-15",
+    borrowedBooks: 2,
+    status: "active"
+  },
+  {
+    id: "2",
+    name: "Jane Smith",
+    email: "jane@email.com",
+    phone: "+0987654321",
+    joinDate: "2024-02-20",
+    borrowedBooks: 1,
+    status: "active"
+  },
+  {
+    id: "3",
+    name: "Mike Brown",
+    email: "mike.brown@email.com",
+    phone: "+1555666777",
+    joinDate: "2024-03-10",
+    borrowedBooks: 0,
+    status: "inactive"
+  }
+];
+
+// Function to add customer globally
+export const addCustomerGlobally = (customer: any) => {
+  const newCustomer: Customer = {
+    id: customer.id || Date.now().toString(),
+    name: customer.name,
+    email: customer.email,
+    phone: customer.phone,
+    joinDate: new Date().toISOString().split('T')[0],
+    borrowedBooks: 0,
+    status: "active"
+  };
+  globalCustomers.push(newCustomer);
+  console.log("Customer added globally:", newCustomer);
+  console.log("Total customers:", globalCustomers.length);
+};
+
 const CustomerList = () => {
-  const [customers] = useState<Customer[]>([
-    {
-      id: "1",
-      name: "John Smith",
-      email: "john.smith@email.com",
-      phone: "+1 (555) 123-4567",
-      joinDate: "2024-01-15",
-      borrowedBooks: 2,
-      status: "active"
-    },
-    {
-      id: "2",
-      name: "Sarah Johnson",
-      email: "sarah.j@email.com",
-      phone: "+1 (555) 987-6543",
-      joinDate: "2024-02-20",
-      borrowedBooks: 1,
-      status: "active"
-    },
-    {
-      id: "3",
-      name: "Mike Brown",
-      email: "mike.brown@email.com",
-      phone: "+1 (555) 456-7890",
-      joinDate: "2024-03-10",
-      borrowedBooks: 0,
-      status: "inactive"
-    }
-  ]);
+  const [customers, setCustomers] = useState<Customer[]>(globalCustomers);
+
+  // Listen for changes in global customers
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (globalCustomers.length !== customers.length) {
+        setCustomers([...globalCustomers]);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [customers.length]);
 
   return (
     <div className="p-6">
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Customer Management</h2>
-        <p className="text-gray-600">Manage library members and their borrowing status</p>
+        <p className="text-gray-600">Manage library members and their borrowing status ({customers.length} customers)</p>
       </div>
 
       <div className="bg-white rounded-lg border border-gray-200">

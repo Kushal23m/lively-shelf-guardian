@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Book, Calendar, User, BookOpen, Trash2 } from "lucide-react";
 
 interface BookData {
@@ -20,69 +20,90 @@ interface BookListProps {
   onBookRequest?: (book: BookData) => void;
 }
 
+// Global books state to persist across component re-renders
+let globalBooks: BookData[] = [
+  {
+    id: "1",
+    title: "The Great Gatsby",
+    author: "F. Scott Fitzgerald",
+    year: 1925,
+    category: "Fiction",
+    description: "A classic American novel about the Jazz Age and the American Dream.",
+    coverImage: "https://images.unsplash.com/photo-1521587760476-6c12a4b040da?w=300&h=400&fit=crop",
+    available: true
+  },
+  {
+    id: "2",
+    title: "A Brief History of Time",
+    author: "Stephen Hawking",
+    year: 1988,
+    category: "Science",
+    description: "A landmark volume in science writing exploring the nature of time and the universe.",
+    coverImage: "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=300&h=400&fit=crop",
+    available: true
+  },
+  {
+    id: "3",
+    title: "Steve Jobs",
+    author: "Walter Isaacson",
+    year: 2011,
+    category: "Biography",
+    description: "The exclusive biography of Steve Jobs, based on extensive interviews.",
+    coverImage: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=400&fit=crop",
+    available: false
+  },
+  {
+    id: "4",
+    title: "Clean Code",
+    author: "Robert C. Martin",
+    year: 2008,
+    category: "Technology",
+    description: "A handbook of agile software craftsmanship for better programming practices.",
+    coverImage: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=300&h=400&fit=crop",
+    available: true
+  },
+  {
+    id: "5",
+    title: "The Hobbit",
+    author: "J.R.R. Tolkien",
+    year: 1937,
+    category: "Fantasy",
+    description: "A timeless classic about Bilbo Baggins and his unexpected adventure.",
+    coverImage: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=400&fit=crop",
+    available: true
+  },
+  {
+    id: "6",
+    title: "Sapiens",
+    author: "Yuval Noah Harari",
+    year: 2011,
+    category: "History",
+    description: "A brief history of humankind and how we came to dominate Earth.",
+    coverImage: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=300&h=400&fit=crop",
+    available: true
+  }
+];
+
+// Function to add a book globally
+export const addBookGlobally = (book: BookData) => {
+  globalBooks.push(book);
+  console.log("Book added globally:", book);
+  console.log("Total books:", globalBooks.length);
+};
+
 const BookList = ({ isAdmin, searchTerm = "", selectedCategory = "", onBookRequest }: BookListProps) => {
-  const [books, setBooks] = useState<BookData[]>([
-    {
-      id: "1",
-      title: "The Great Gatsby",
-      author: "F. Scott Fitzgerald",
-      year: 1925,
-      category: "Fiction",
-      description: "A classic American novel about the Jazz Age and the American Dream.",
-      coverImage: "https://images.unsplash.com/photo-1521587760476-6c12a4b040da?w=300&h=400&fit=crop",
-      available: true
-    },
-    {
-      id: "2",
-      title: "A Brief History of Time",
-      author: "Stephen Hawking",
-      year: 1988,
-      category: "Science",
-      description: "A landmark volume in science writing exploring the nature of time and the universe.",
-      coverImage: "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=300&h=400&fit=crop",
-      available: true
-    },
-    {
-      id: "3",
-      title: "Steve Jobs",
-      author: "Walter Isaacson",
-      year: 2011,
-      category: "Biography",
-      description: "The exclusive biography of Steve Jobs, based on extensive interviews.",
-      coverImage: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=400&fit=crop",
-      available: false
-    },
-    {
-      id: "4",
-      title: "Clean Code",
-      author: "Robert C. Martin",
-      year: 2008,
-      category: "Technology",
-      description: "A handbook of agile software craftsmanship for better programming practices.",
-      coverImage: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=300&h=400&fit=crop",
-      available: true
-    },
-    {
-      id: "5",
-      title: "The Hobbit",
-      author: "J.R.R. Tolkien",
-      year: 1937,
-      category: "Fantasy",
-      description: "A timeless classic about Bilbo Baggins and his unexpected adventure.",
-      coverImage: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=400&fit=crop",
-      available: true
-    },
-    {
-      id: "6",
-      title: "Sapiens",
-      author: "Yuval Noah Harari",
-      year: 2011,
-      category: "History",
-      description: "A brief history of humankind and how we came to dominate Earth.",
-      coverImage: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=300&h=400&fit=crop",
-      available: true
-    }
-  ]);
+  const [books, setBooks] = useState<BookData[]>(globalBooks);
+
+  // Listen for changes in global books
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (globalBooks.length !== books.length) {
+        setBooks([...globalBooks]);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [books.length]);
 
   const filteredBooks = books.filter(book => {
     const matchesSearch = book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -94,7 +115,9 @@ const BookList = ({ isAdmin, searchTerm = "", selectedCategory = "", onBookReque
 
   const handleDeleteBook = (bookId: string) => {
     if (window.confirm("Are you sure you want to delete this book?")) {
-      setBooks(books.filter(book => book.id !== bookId));
+      globalBooks = globalBooks.filter(book => book.id !== bookId);
+      setBooks([...globalBooks]);
+      console.log("Book deleted, remaining books:", globalBooks.length);
     }
   };
 
