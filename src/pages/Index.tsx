@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import LoginForm from "../components/LoginForm";
 import AdminLoginForm from "../components/AdminLoginForm";
@@ -33,7 +32,7 @@ const Index = () => {
       setCurrentUser({ id: "admin", username: "Kushal", role: "admin" });
       setCurrentView('home');
     } else {
-      alert("Invalid admin credentials. Use: kushal / kush@23");
+      alert("Invalid admin credentials.");
     }
   };
 

@@ -81,12 +81,6 @@ const AdminLoginForm = ({ onLogin, onCancel }: AdminLoginFormProps) => {
               </button>
             </div>
           </form>
-
-          <div className="mt-6 p-4 bg-red-50 rounded-lg">
-            <p className="text-sm text-red-800 font-medium mb-2">Admin Credentials:</p>
-            <p className="text-xs text-red-600">Username: kushal</p>
-            <p className="text-xs text-red-600">Password: kush@23</p>
-          </div>
         </div>
       </div>
     </div>

@@ -8,7 +8,7 @@ import CustomerList from "./CustomerList";
 interface User {
   id: string;
   username: string;
-  role: 'admin' | 'public' | null;
+  role: 'admin' | 'customer' | 'public' | null;
 }
 
 interface AdminDashboardProps {
