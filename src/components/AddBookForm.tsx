@@ -1,15 +1,18 @@
 
 import { useState } from "react";
-import { Book, Save, Upload } from "lucide-react";
+import { Book, Save, Upload, Loader2 } from "lucide-react";
+import { useBooks } from "@/hooks/useBooks";
 
 const AddBookForm = () => {
+  const { addBook } = useBooks();
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
     author: "",
     year: "",
     category: "",
     description: "",
-    coverImage: ""
+    cover_image: ""
   });
 
   const categories = [
@@ -17,21 +20,37 @@ const AddBookForm = () => {
     "Technology", "Philosophy", "Romance", "Mystery", "Fantasy"
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, this would save to database
-    console.log("Adding book:", formData);
-    alert("Book added successfully!");
+    setLoading(true);
+
+    const bookData = {
+      title: formData.title,
+      author: formData.author,
+      year: parseInt(formData.year),
+      category: formData.category,
+      description: formData.description,
+      cover_image: formData.cover_image || null,
+      available: true
+    };
+
+    const result = await addBook(bookData);
     
-    // Reset form
-    setFormData({
-      title: "",
-      author: "",
-      year: "",
-      category: "",
-      description: "",
-      coverImage: ""
-    });
+    if (result.success) {
+      alert("Book added successfully!");
+      setFormData({
+        title: "",
+        author: "",
+        year: "",
+        category: "",
+        description: "",
+        cover_image: ""
+      });
+    } else {
+      alert(result.error || "Failed to add book");
+    }
+    
+    setLoading(false);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -128,15 +147,15 @@ const AddBookForm = () => {
           </div>
 
           <div>
-            <label htmlFor="coverImage" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="cover_image" className="block text-sm font-medium text-gray-700 mb-2">
               Cover Image URL
             </label>
             <div className="flex">
               <input
                 type="url"
-                id="coverImage"
-                name="coverImage"
-                value={formData.coverImage}
+                id="cover_image"
+                name="cover_image"
+                value={formData.cover_image}
                 onChange={handleInputChange}
                 className="flex-1 px-3 py-2 border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="https://example.com/book-cover.jpg"
@@ -169,10 +188,15 @@ const AddBookForm = () => {
           <div className="flex justify-end">
             <button
               type="submit"
-              className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+              disabled={loading}
+              className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50"
             >
-              <Save className="w-4 h-4" />
-              Add Book
+              {loading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Save className="w-4 h-4" />
+              )}
+              {loading ? 'Adding...' : 'Add Book'}
             </button>
           </div>
         </form>

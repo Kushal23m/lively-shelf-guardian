@@ -1,77 +1,26 @@
 
-import { useState, useEffect } from "react";
-import { User, Mail, Phone, Calendar, Book } from "lucide-react";
-
-interface Customer {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  joinDate: string;
-  borrowedBooks: number;
-  status: 'active' | 'inactive';
-}
-
-// Global customers state
-let globalCustomers: Customer[] = [
-  {
-    id: "1",
-    name: "John Doe",
-    email: "john@email.com",
-    phone: "+1234567890",
-    joinDate: "2024-01-15",
-    borrowedBooks: 2,
-    status: "active"
-  },
-  {
-    id: "2",
-    name: "Jane Smith",
-    email: "jane@email.com",
-    phone: "+0987654321",
-    joinDate: "2024-02-20",
-    borrowedBooks: 1,
-    status: "active"
-  },
-  {
-    id: "3",
-    name: "Mike Brown",
-    email: "mike.brown@email.com",
-    phone: "+1555666777",
-    joinDate: "2024-03-10",
-    borrowedBooks: 0,
-    status: "inactive"
-  }
-];
-
-// Function to add customer globally
-export const addCustomerGlobally = (customer: any) => {
-  const newCustomer: Customer = {
-    id: customer.id || Date.now().toString(),
-    name: customer.name,
-    email: customer.email,
-    phone: customer.phone,
-    joinDate: new Date().toISOString().split('T')[0],
-    borrowedBooks: 0,
-    status: "active"
-  };
-  globalCustomers.push(newCustomer);
-  console.log("Customer added globally:", newCustomer);
-  console.log("Total customers:", globalCustomers.length);
-};
+import { Loader2, User, Mail, Phone, Calendar, Book } from "lucide-react";
+import { useCustomers } from "@/hooks/useCustomers";
 
 const CustomerList = () => {
-  const [customers, setCustomers] = useState<Customer[]>(globalCustomers);
+  const { customers, loading, error } = useCustomers();
 
-  // Listen for changes in global customers
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (globalCustomers.length !== customers.length) {
-        setCustomers([...globalCustomers]);
-      }
-    }, 1000);
+  if (loading) {
+    return (
+      <div className="p-6 flex justify-center items-center">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+        <span className="ml-2 text-gray-600">Loading customers...</span>
+      </div>
+    );
+  }
 
-    return () => clearInterval(interval);
-  }, [customers.length]);
+  if (error) {
+    return (
+      <div className="p-6 text-center text-red-600">
+        <p>Error loading customers: {error}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6">
@@ -112,7 +61,7 @@ const CustomerList = () => {
                       </div>
                       <div className="ml-4">
                         <div className="text-sm font-medium text-gray-900">{customer.name}</div>
-                        <div className="text-sm text-gray-500">ID: {customer.id}</div>
+                        <div className="text-sm text-gray-500">@{customer.username}</div>
                       </div>
                     </div>
                   </td>
@@ -131,13 +80,13 @@ const CustomerList = () => {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center text-sm text-gray-900">
                       <Calendar className="w-4 h-4 mr-2 text-gray-400" />
-                      {new Date(customer.joinDate).toLocaleDateString()}
+                      {new Date(customer.join_date).toLocaleDateString()}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center text-sm text-gray-900">
                       <Book className="w-4 h-4 mr-2 text-gray-400" />
-                      {customer.borrowedBooks} book{customer.borrowedBooks !== 1 ? 's' : ''}
+                      {customer.borrowed_books} book{customer.borrowed_books !== 1 ? 's' : ''}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">

@@ -5,6 +5,7 @@ import AdminLoginForm from "../components/AdminLoginForm";
 import CustomerRegistrationForm from "../components/CustomerRegistrationForm";
 import PublicLibrary from "../components/PublicLibrary";
 import AdminDashboard from "../components/AdminDashboard";
+import { useCustomers } from "@/hooks/useCustomers";
 
 type UserRole = 'admin' | 'customer' | 'public' | null;
 
@@ -18,15 +19,10 @@ interface User {
 
 type ViewState = 'home' | 'admin-login' | 'customer-login' | 'customer-register';
 
-// Mock customer database
-const mockCustomers = [
-  { id: "1", username: "john_doe", password: "password123", email: "john@email.com", phone: "+1234567890", name: "John Doe" },
-  { id: "2", username: "jane_smith", password: "password456", email: "jane@email.com", phone: "+0987654321", name: "Jane Smith" }
-];
-
 const Index = () => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [currentView, setCurrentView] = useState<ViewState>('home');
+  const { addCustomer, authenticateCustomer } = useCustomers();
 
   const handleAdminLogin = (username: string, password: string) => {
     if (username === "kushal" && password === "kush@23") {
@@ -37,9 +33,10 @@ const Index = () => {
     }
   };
 
-  const handleCustomerLogin = (username: string, password: string) => {
-    const customer = mockCustomers.find(c => c.username === username && c.password === password);
-    if (customer) {
+  const handleCustomerLogin = async (username: string, password: string) => {
+    const result = await authenticateCustomer(username, password);
+    if (result.success && result.customer) {
+      const customer = result.customer;
       setCurrentUser({ 
         id: customer.id, 
         username: customer.name, 
@@ -49,25 +46,25 @@ const Index = () => {
       });
       setCurrentView('home');
     } else {
-      alert("Invalid customer credentials. Try: john_doe/password123 or jane_smith/password456");
+      alert("Invalid customer credentials.");
     }
   };
 
-  const handleCustomerRegistration = (customerData: any) => {
-    // In a real app, this would save to database
-    const newCustomer = {
-      ...customerData,
-      id: Date.now().toString()
-    };
-    mockCustomers.push(newCustomer);
-    setCurrentUser({
-      id: newCustomer.id,
-      username: newCustomer.name,
-      role: "customer",
-      email: newCustomer.email,
-      phone: newCustomer.phone
-    });
-    setCurrentView('home');
+  const handleCustomerRegistration = async (customerData: any) => {
+    const result = await addCustomer(customerData);
+    if (result.success && result.data) {
+      const customer = result.data;
+      setCurrentUser({
+        id: customer.id,
+        username: customer.name,
+        role: "customer",
+        email: customer.email,
+        phone: customer.phone
+      });
+      setCurrentView('home');
+    } else {
+      alert(result.error || "Failed to register customer");
+    }
   };
 
   const handleLogout = () => {

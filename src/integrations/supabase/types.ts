@@ -9,7 +9,140 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      book_requests: {
+        Row: {
+          book_id: string
+          created_at: string
+          customer_address: string
+          customer_email: string
+          customer_name: string
+          customer_phone: string
+          id: string
+          purpose: string | null
+          request_date: string
+          return_date: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          book_id: string
+          created_at?: string
+          customer_address: string
+          customer_email: string
+          customer_name: string
+          customer_phone: string
+          id?: string
+          purpose?: string | null
+          request_date?: string
+          return_date: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          book_id?: string
+          created_at?: string
+          customer_address?: string
+          customer_email?: string
+          customer_name?: string
+          customer_phone?: string
+          id?: string
+          purpose?: string | null
+          request_date?: string
+          return_date?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "book_requests_book_id_fkey"
+            columns: ["book_id"]
+            isOneToOne: false
+            referencedRelation: "books"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      books: {
+        Row: {
+          author: string
+          available: boolean
+          category: string
+          cover_image: string | null
+          created_at: string
+          description: string
+          id: string
+          title: string
+          updated_at: string
+          year: number
+        }
+        Insert: {
+          author: string
+          available?: boolean
+          category: string
+          cover_image?: string | null
+          created_at?: string
+          description: string
+          id?: string
+          title: string
+          updated_at?: string
+          year: number
+        }
+        Update: {
+          author?: string
+          available?: boolean
+          category?: string
+          cover_image?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          title?: string
+          updated_at?: string
+          year?: number
+        }
+        Relationships: []
+      }
+      customers: {
+        Row: {
+          borrowed_books: number
+          created_at: string
+          email: string
+          id: string
+          join_date: string
+          name: string
+          password: string
+          phone: string
+          status: string
+          updated_at: string
+          username: string
+        }
+        Insert: {
+          borrowed_books?: number
+          created_at?: string
+          email: string
+          id?: string
+          join_date?: string
+          name: string
+          password: string
+          phone: string
+          status?: string
+          updated_at?: string
+          username: string
+        }
+        Update: {
+          borrowed_books?: number
+          created_at?: string
+          email?: string
+          id?: string
+          join_date?: string
+          name?: string
+          password?: string
+          phone?: string
+          status?: string
+          updated_at?: string
+          username?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

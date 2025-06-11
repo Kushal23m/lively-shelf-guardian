@@ -1,33 +1,50 @@
 
 import { useState } from "react";
-import { User, Mail, Phone, ArrowLeft, Send } from "lucide-react";
+import { User, Mail, Phone, ArrowLeft, Send, Loader2 } from "lucide-react";
+import { useBookRequests } from "@/hooks/useBookRequests";
+import { Book } from "@/types/database";
 
 interface BookRequestFormProps {
-  book: {
-    id: string;
-    title: string;
-    author: string;
-    coverImage: string;
-  };
+  book: Book;
   onBack: () => void;
 }
 
 const BookRequestForm = ({ book, onBack }: BookRequestFormProps) => {
+  const { createRequest } = useBookRequests();
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    fullName: "",
-    email: "",
-    phone: "",
-    address: "",
+    customer_name: "",
+    customer_email: "",
+    customer_phone: "",
+    customer_address: "",
     purpose: "",
-    returnDate: ""
+    return_date: ""
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, this would save to database
-    console.log("Book request:", { book, customer: formData });
-    alert("Book request submitted successfully! We'll contact you soon.");
-    onBack();
+    setLoading(true);
+
+    const requestData = {
+      book_id: book.id,
+      customer_name: formData.customer_name,
+      customer_email: formData.customer_email,
+      customer_phone: formData.customer_phone,
+      customer_address: formData.customer_address,
+      purpose: formData.purpose || null,
+      return_date: formData.return_date
+    };
+
+    const result = await createRequest(requestData);
+    
+    if (result.success) {
+      alert("Book request submitted successfully! We'll contact you soon.");
+      onBack();
+    } else {
+      alert(result.error || "Failed to submit request");
+    }
+    
+    setLoading(false);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -56,7 +73,7 @@ const BookRequestForm = ({ book, onBack }: BookRequestFormProps) => {
           <div className="bg-blue-50 rounded-lg p-6 mb-8">
             <div className="flex items-start gap-4">
               <img
-                src={book.coverImage}
+                src={book.cover_image || 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=300&h=400&fit=crop'}
                 alt={book.title}
                 className="w-24 h-32 object-cover rounded-lg"
               />
@@ -72,16 +89,16 @@ const BookRequestForm = ({ book, onBack }: BookRequestFormProps) => {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="customer_name" className="block text-sm font-medium text-gray-700 mb-2">
                   Full Name *
                 </label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <input
                     type="text"
-                    id="fullName"
-                    name="fullName"
-                    value={formData.fullName}
+                    id="customer_name"
+                    name="customer_name"
+                    value={formData.customer_name}
                     onChange={handleInputChange}
                     required
                     className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -91,16 +108,16 @@ const BookRequestForm = ({ book, onBack }: BookRequestFormProps) => {
               </div>
 
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="customer_email" className="block text-sm font-medium text-gray-700 mb-2">
                   Email Address *
                 </label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <input
                     type="email"
-                    id="email"
-                    name="email"
-                    value={formData.email}
+                    id="customer_email"
+                    name="customer_email"
+                    value={formData.customer_email}
                     onChange={handleInputChange}
                     required
                     className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -110,16 +127,16 @@ const BookRequestForm = ({ book, onBack }: BookRequestFormProps) => {
               </div>
 
               <div>
-                <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="customer_phone" className="block text-sm font-medium text-gray-700 mb-2">
                   Phone Number *
                 </label>
                 <div className="relative">
                   <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <input
                     type="tel"
-                    id="phone"
-                    name="phone"
-                    value={formData.phone}
+                    id="customer_phone"
+                    name="customer_phone"
+                    value={formData.customer_phone}
                     onChange={handleInputChange}
                     required
                     className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -129,14 +146,14 @@ const BookRequestForm = ({ book, onBack }: BookRequestFormProps) => {
               </div>
 
               <div>
-                <label htmlFor="returnDate" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="return_date" className="block text-sm font-medium text-gray-700 mb-2">
                   Expected Return Date *
                 </label>
                 <input
                   type="date"
-                  id="returnDate"
-                  name="returnDate"
-                  value={formData.returnDate}
+                  id="return_date"
+                  name="return_date"
+                  value={formData.return_date}
                   onChange={handleInputChange}
                   required
                   min={new Date().toISOString().split('T')[0]}
@@ -146,13 +163,13 @@ const BookRequestForm = ({ book, onBack }: BookRequestFormProps) => {
             </div>
 
             <div>
-              <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="customer_address" className="block text-sm font-medium text-gray-700 mb-2">
                 Address *
               </label>
               <textarea
-                id="address"
-                name="address"
-                value={formData.address}
+                id="customer_address"
+                name="customer_address"
+                value={formData.customer_address}
                 onChange={handleInputChange}
                 required
                 rows={3}
@@ -193,10 +210,15 @@ const BookRequestForm = ({ book, onBack }: BookRequestFormProps) => {
             <div className="flex justify-end">
               <button
                 type="submit"
-                className="flex items-center gap-2 px-8 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+                disabled={loading}
+                className="flex items-center gap-2 px-8 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50"
               >
-                <Send className="w-4 h-4" />
-                Submit Request
+                {loading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Send className="w-4 h-4" />
+                )}
+                {loading ? 'Submitting...' : 'Submit Request'}
               </button>
             </div>
           </form>
