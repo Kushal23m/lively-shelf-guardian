@@ -21,7 +21,7 @@ export interface Customer {
   password: string;
   join_date: string;
   borrowed_books: number;
-  status: 'active' | 'inactive';
+  status: string; // Changed from 'active' | 'inactive' to string
   created_at: string;
   updated_at: string;
 }
@@ -35,7 +35,7 @@ export interface BookRequest {
   customer_address: string;
   purpose: string | null;
   return_date: string;
-  status: 'pending' | 'approved' | 'rejected' | 'returned';
+  status: string; // Changed from 'pending' | 'approved' | 'rejected' | 'returned' to string
   request_date: string;
   created_at: string;
   updated_at: string;
