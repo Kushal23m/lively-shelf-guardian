@@ -25,11 +25,14 @@ export const useCustomers = () => {
     }
   };
 
-  const addCustomer = async (customerData: Omit<Customer, 'id' | 'created_at' | 'updated_at' | 'join_date' | 'borrowed_books' | 'status'>) => {
+  const addCustomer = async (customerData: any) => {
     try {
+      // Exclude confirmPassword field and only send fields that exist in the database
+      const { confirmPassword, ...dataToSend } = customerData;
+      
       const { data, error } = await supabase
         .from('customers')
-        .insert([customerData])
+        .insert([dataToSend])
         .select()
         .single();
 
